@@ -7,6 +7,14 @@ terraform {
   }
 }
 
+variable "domain" {
+  default = "diplomproj.ru"
+}
+
+variable "cloudflare_zone_id" {
+  default = "cc965f05e57b7751af5448a0d15ac29f"
+}
+
 # Ищем образ с последней версией Ubuntu
 data "aws_ami" "ubuntu" {
   owners      = ["099720109477"]
@@ -31,18 +39,9 @@ provider "aws" {
   region = "eu-central-1"
 }
 
-
 provider "cloudflare" {
   email     = "n.n.glebanov@gmail.com"
   api_token = "CNRQbfDUSJEsWhur29xiEHRyEjNjzOy5I5IwNLe1"
-}
-
-variable "domain" {
-  default = "diplomproj.ru"
-}
-
-resource "aws_eip" "server" {
-  vpc = true
 }
 
 
@@ -149,6 +148,29 @@ resource "aws_lb_target_group" "asg" {
   vpc_id   = data.aws_vpc.default.id
 }
 
+resource "cloudflare_record" "www" {
+  name    = "www"
+  value   = aws_lb.main.dns_name
+  type    = "CNAME"
+  proxied = true
+  zone_id = var.cloudflare_zone_id
+}
+
+resource "cloudflare_record" "root" {
+  name    = var.domain
+  value   = aws_lb.main.dns_name
+  type    = "CNAME"
+  proxied = true
+  zone_id = var.cloudflare_zone_id
+}
+
+resource "cloudflare_record" "test" {
+  name    = "test"
+  value   = aws_lb.main.dns_name
+  type    = "CNAME"
+  proxied = true
+  zone_id = var.cloudflare_zone_id
+}
 
 output "alb_dns_name" {
   value       = aws_lb.main.dns_name
