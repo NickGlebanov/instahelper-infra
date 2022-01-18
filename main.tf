@@ -45,7 +45,7 @@ provider "cloudflare" {
 }
 
 resource "aws_security_group" "backend" {
-  name = "backend security"
+  name = "backend security 2"
   dynamic ingress {
     for_each = [22, 80]
     content {
@@ -55,10 +55,10 @@ resource "aws_security_group" "backend" {
       protocol    = "tcp"
     }
   }
-  ingress {
-    from_port   = 8080
-    to_port     = 8080
-    protocol    = "tcp"
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
@@ -69,11 +69,6 @@ resource "aws_launch_configuration" "example" {
   instance_type   = "t2.micro"
   security_groups = [aws_security_group.backend.id]
   key_name        = "id_rsa"
-  user_data       = <<-EOF
-#!/bin/bash
-echo "Hello, World" > index.html
-nohup busybox httpd -f -p 8080 &
-EOF
 }
 
 resource "aws_autoscaling_group" "example" {
@@ -142,7 +137,7 @@ resource "aws_lb_listener_rule" "asg" {
   }
 }
 resource "aws_security_group" "alb" {
-  name = "balancer security"
+  name = "balancer security 2"
   ingress {
     from_port   = 80
     to_port     = 80
@@ -159,8 +154,8 @@ resource "aws_security_group" "alb" {
 }
 
 resource "aws_lb_target_group" "asg" {
-  name     = "terraform-asg-example"
-  port     = 8080
+  name     = "terraform-asg-backend"
+  port     = 80
   protocol = "HTTP"
   vpc_id   = data.aws_vpc.default.id
 }
