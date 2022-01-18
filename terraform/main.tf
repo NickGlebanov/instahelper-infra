@@ -44,12 +44,21 @@ provider "cloudflare" {
   api_token = "CNRQbfDUSJEsWhur29xiEHRyEjNjzOy5I5IwNLe1"
 }
 
+resource "aws_security_group" "backend" {
+  name = "backend security"
+  ingress {
+    from_port   = 8080
+    to_port     = 8080
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
 
 #конфигурация серверов входящих в автоскейлинг группу
 resource "aws_launch_configuration" "example" {
   image_id        = data.aws_ami.ubuntu.id
   instance_type   = "t2.micro"
-  security_groups = [aws_security_group.alb.id]
+  security_groups = [aws_security_group.backend.id]
 
   user_data = <<-EOF
 #!/bin/bash
@@ -94,7 +103,7 @@ resource "aws_lb" "main" {
 
 resource "aws_lb_listener" "http" {
   load_balancer_arn = aws_lb.main.arn
-  port              = 8080
+  port              = 80
   protocol          = "HTTP"
 
   default_action {
@@ -124,11 +133,10 @@ resource "aws_lb_listener_rule" "asg" {
   }
 }
 resource "aws_security_group" "alb" {
-  name = "terraform-example-alb"
-  # Разрешаем все
+  name = "balancer security"
   ingress {
-    from_port   = 8080
-    to_port     = 8080
+    from_port   = 80
+    to_port     = 80
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
