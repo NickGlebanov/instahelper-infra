@@ -46,6 +46,15 @@ provider "cloudflare" {
 
 resource "aws_security_group" "backend" {
   name = "backend security"
+  dynamic ingress {
+    for_each = [22, 80]
+    content {
+      from_port   = ingress.value
+      to_port     = ingress.value
+      cidr_blocks = ["0.0.0.0/0"]
+      protocol    = "tcp"
+    }
+  }
   ingress {
     from_port   = 8080
     to_port     = 8080
@@ -59,8 +68,8 @@ resource "aws_launch_configuration" "example" {
   image_id        = data.aws_ami.ubuntu.id
   instance_type   = "t2.micro"
   security_groups = [aws_security_group.backend.id]
-
-  user_data = <<-EOF
+  key_name        = "id_rsa"
+  user_data       = <<-EOF
 #!/bin/bash
 echo "Hello, World" > index.html
 nohup busybox httpd -f -p 8080 &
@@ -78,7 +87,7 @@ resource "aws_autoscaling_group" "example" {
 
   tag {
     key                 = "Name"
-    value               = "terraform-asg-example"
+    value               = "Service instance"
     propagate_at_launch = true
   }
   # Требуется при использовании группы автомасштабирования
