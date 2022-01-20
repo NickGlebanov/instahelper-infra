@@ -36,7 +36,7 @@ data "aws_subnet_ids" "default" {
 
 # Указываем, что мы хотим разворачивать окружение в AWS
 provider "aws" {
-  region = "eu-central-1"
+  region = "eu-west-1"
 }
 
 provider "cloudflare" {
@@ -47,7 +47,7 @@ provider "cloudflare" {
 resource "aws_security_group" "backend" {
   name = "backend security 2"
   dynamic ingress {
-    for_each = [22, 80]
+    for_each = [22, 8080]
     content {
       from_port   = ingress.value
       to_port     = ingress.value
@@ -75,8 +75,6 @@ resource "aws_autoscaling_group" "example" {
   launch_configuration = aws_launch_configuration.example.name
   min_size             = 2
   max_size             = 2
-  min_elb_capacity     = 2
-  health_check_type    = "ELB"
   vpc_zone_identifier  = data.aws_subnet_ids.default.ids
   target_group_arns    = [aws_lb_target_group.asg.arn]
 
@@ -97,7 +95,7 @@ resource "aws_autoscaling_group" "example" {
 # балансер
 
 resource "aws_lb" "main" {
-  name               = "terraform-asg-example"
+  name               = "terraform-backend-balancer"
   subnets            = data.aws_subnet_ids.default.ids
   security_groups    = [aws_security_group.alb.id]
   internal           = false
@@ -155,7 +153,7 @@ resource "aws_security_group" "alb" {
 
 resource "aws_lb_target_group" "asg" {
   name     = "terraform-asg-backend"
-  port     = 80
+  port     = 8080
   protocol = "HTTP"
   vpc_id   = data.aws_vpc.default.id
 }
