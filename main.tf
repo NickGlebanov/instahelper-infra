@@ -8,12 +8,20 @@ terraform {
 }
 
 #данные переменные в локальном .tfvars файле
+variable "cloudflare_api_token" {
+  type = string
+}
+
+variable "email" {
+  type = string
+}
+
 variable "domain" {
-  type    = string
+  type = string
 }
 
 variable "cloudflare_zone_id" {
-  type    = string
+  type = string
 }
 
 variable "aws_zone" {
@@ -45,8 +53,8 @@ provider "aws" {
 }
 
 provider "cloudflare" {
-  email     = "n.n.glebanov@gmail.com"
-  api_token = "CNRQbfDUSJEsWhur29xiEHRyEjNjzOy5I5IwNLe1"
+  email     = var.email
+  api_token = var.cloudflare_api_token
 }
 
 resource "aws_security_group" "backend" {
