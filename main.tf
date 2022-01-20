@@ -7,12 +7,17 @@ terraform {
   }
 }
 
+#данные переменные в локальном .tfvars файле
 variable "domain" {
-  default = "diplomproj.ru"
+  type    = string
 }
 
 variable "cloudflare_zone_id" {
-  default = "cc965f05e57b7751af5448a0d15ac29f"
+  type    = string
+}
+
+variable "aws_zone" {
+  type = string
 }
 
 # Ищем образ с последней версией Ubuntu
@@ -36,7 +41,7 @@ data "aws_subnet_ids" "default" {
 
 # Указываем, что мы хотим разворачивать окружение в AWS
 provider "aws" {
-  region = "eu-west-1"
+  region = var.aws_zone
 }
 
 provider "cloudflare" {
