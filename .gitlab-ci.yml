@@ -1,0 +1,10 @@
+stages:
+  - deploy
+
+update_amazon_infrastructure:
+  image: hashicorp/terraform:latest
+  stage: deploy
+  when: manual
+  script:
+    - terraform plan
+    - apply --auto-approve
