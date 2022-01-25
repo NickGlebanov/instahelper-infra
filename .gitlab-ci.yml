@@ -1,8 +1,9 @@
 stages:
   - deploy
 
-image: hashicorp/terraform:latest
-entrypoint: [""]
+image:
+  name: hashicorp/terraform:latest
+  entrypoint: [""]
 
 update_amazon_infrastructure:
   before_script:
