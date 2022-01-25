@@ -1,10 +1,15 @@
 stages:
   - deploy
 
+image: hashicorp/terraform:latest
+entrypoint: [""]
+
 update_amazon_infrastructure:
-  image: hashicorp/terraform:latest
+  before_script:
+    - terraform init
+    - terraform state pull > terraform.tfstate
   stage: deploy
   when: manual
   script:
     - terraform plan
-    - apply --auto-approve
+    - terraform apply --auto-approve
