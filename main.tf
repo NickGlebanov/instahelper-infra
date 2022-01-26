@@ -5,6 +5,14 @@ terraform {
       version = "3.7.0"
     }
   }
+  cloud {
+    organization = "skillboxngdiplom"
+
+    workspaces {
+      name = "diploma"
+    }
+  }
+  
 }
 
 #данные переменные в локальном .tfvars файле
