@@ -36,6 +36,7 @@ destroy_amazon_infrastructure:
     - >
       terraform refresh -var="domain=$domain" -var="cloudflare_zone_id=$cloudflare_zone_id"
       -var="aws_zone=$aws_zone" -var="cloudflare_api_token=$cloudflare_api_token" -var="email=$email"
+    - sleep 15s
     - terraform state pull > terraform.tfstate
     - >
       terraform plan -destroy -var="domain=$domain" -var="cloudflare_zone_id=$cloudflare_zone_id"
