@@ -7,13 +7,14 @@ image:
 
 update_amazon_infrastructure:
   stage: deploy
+  when: manual
   script:
     - >
       echo "credentials "app.terraform.io" {
       token = \"$TFE_TOKEN\"
       }" > ~/.terraformrc
     - terraform init
-    - terraform apply
+    - terraform apply --auto-approve
 
 
 destroy_amazon_infrastructure:
@@ -25,4 +26,4 @@ destroy_amazon_infrastructure:
       token = \"$TFE_TOKEN\"
       }" > ~/.terraformrc
     - terraform init
-    - terraform destroy
+    - terraform destroy --auto-approve
