@@ -11,12 +11,15 @@ terraform {
     workspaces {
       name = "diploma"
     }
-    token = "wzLmsZkUXBTB1A.atlasv1.Lbu07OzyP7gIWGipiIm4deweF9HzlaqGa1nHkkhBYzldeHHJBcJB5xXAj1SfivlSQWk"
   }
   
 }
 
 #данные переменные в локальном .tfvars файле
+variable "terraform_token" {
+  type = string
+}
+
 variable "cloudflare_api_token" {
   type = string
 }

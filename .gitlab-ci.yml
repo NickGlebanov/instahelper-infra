@@ -7,6 +7,9 @@ variables:
   aws_zone: $aws_zone
   cloudflare_api_token: $cloudflare_api_token
   email: $email
+  TFE_TOKEN: $terraform_token
+
+
 
 image:
   name: hashicorp/terraform:latest
@@ -14,36 +17,15 @@ image:
 
 update_amazon_infrastructure:
   before_script:
-    - terraform init
-    - >
-      terraform refresh -var="domain=$domain" -var="cloudflare_zone_id=$cloudflare_zone_id"
-      -var="aws_zone=$aws_zone" -var="cloudflare_api_token=$cloudflare_api_token" -var="email=$email"
-    - terraform state pull > terraform.tfstate
   stage: deploy
-  when: manual
   script:
-    - >
-      terraform plan -var="domain=$domain" -var="cloudflare_zone_id=$cloudflare_zone_id"
-      -var="aws_zone=$aws_zone" -var="cloudflare_api_token=$cloudflare_api_token" -var="email=$email"
-    - >
-      terraform apply --auto-approve -var="domain=$domain" -var="cloudflare_zone_id=$cloudflare_zone_id"
-      -var="aws_zone=$aws_zone" -var="cloudflare_api_token=$cloudflare_api_token" -var="email=$email"
+    - terraform init
+    - terraform apply
 
 
 destroy_amazon_infrastructure:
-  before_script:
-    - terraform init
   stage: deploy
   when: manual
   script:
-    - touch terraform.tfstate
-    - >
-      terraform refresh -var="domain=$domain" -var="cloudflare_zone_id=$cloudflare_zone_id"
-      -var="aws_zone=$aws_zone" -var="cloudflare_api_token=$cloudflare_api_token" -var="email=$email"
-    - terraform state pull > terraform.tfstate
-    - >
-      terraform plan -destroy -var="domain=$domain" -var="cloudflare_zone_id=$cloudflare_zone_id"
-      -var="aws_zone=$aws_zone" -var="cloudflare_api_token=$cloudflare_api_token" -var="email=$email"
-    - >
-      terraform destroy --auto-approve -var="domain=$domain" -var="cloudflare_zone_id=$cloudflare_zone_id"
-      -var="aws_zone=$aws_zone" -var="cloudflare_api_token=$cloudflare_api_token" -var="email=$email"
+    - terraform init
+    - terraform destroy
