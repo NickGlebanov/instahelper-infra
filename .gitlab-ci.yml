@@ -2,6 +2,10 @@ stages:
   - deploy
 
 
+include:
+  template: Jobs/Secret-Detection.gitlab-ci.yml
+
+
 variables:
   VAULT_SERVER_URL: https://ci.diplomproj.ru:8200
 
