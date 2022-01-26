@@ -35,7 +35,7 @@ destroy_amazon_infrastructure:
   when: manual
   script:
     - >
-      terraform plan -var="domain=$domain" -var="cloudflare_zone_id=$cloudflare_zone_id"
+      terraform plan -destroy -var="domain=$domain" -var="cloudflare_zone_id=$cloudflare_zone_id"
       -var="aws_zone=$aws_zone" -var="cloudflare_api_token=$cloudflare_api_token" -var="email=$email"
 
     - >
