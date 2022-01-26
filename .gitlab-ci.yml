@@ -32,7 +32,7 @@ destroy_amazon_infrastructure:
     - terraform init
   stage: deploy
   script:
-    - terraform state pull > terraform.tfstate
+    - terraform state pull
     - ls
     - cat terraform.tfstate
     - >
