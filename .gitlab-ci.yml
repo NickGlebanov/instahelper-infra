@@ -7,8 +7,11 @@ include:
 
 
 variables:
-  VAULT_SERVER_URL: https://ci.diplomproj.ru:8200
-
+  domain: $domain
+  cloudflare_zone_id: $cloudflare_zone_id
+  aws_zone: $aws_zone
+  cloudflare_api_token: $cloudflare_api_token
+  email: $email
 
 image:
   name: hashicorp/terraform:latest
@@ -20,17 +23,6 @@ update_amazon_infrastructure:
     - terraform state pull > terraform.tfstate
   stage: deploy
   when: manual
-  secrets:
-    domain:
-      vault: secret/infra/domain
-    cloudflare_zone_id:
-      vault: secret/infra/cloudflare_zone_id
-    aws_zone:
-      vault: secret/infra/aws_zone
-    cloudflare_api_token:
-      vault: secret/infra/cloudflare_api_token
-    email:
-      vault: secret/infra/email
   script:
     - terraform plan
     - >
