@@ -30,6 +30,7 @@ update_amazon_infrastructure:
 destroy_amazon_infrastructure:
   before_script:
     - terraform state pull > terraform.tfstate
+    - terraform init
   stage: deploy
   when: manual
   script:
