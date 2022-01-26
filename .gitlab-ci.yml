@@ -32,6 +32,7 @@ destroy_amazon_infrastructure:
   before_script:
     - terraform init
   stage: deploy
+  when: manual
   script:
     - touch terraform.tfstate
     - >
