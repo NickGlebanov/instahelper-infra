@@ -29,17 +29,11 @@ update_amazon_infrastructure:
 
 destroy_amazon_infrastructure:
   before_script:
-    - apt install ruby-dev -f
-    - gem install terraforming
     - terraform init
   stage: deploy
   when: manual
   script:
-    - terraforming s3 --tfstate
-    - >
-      terraform plan -destroy -var="domain=$domain" -var="cloudflare_zone_id=$cloudflare_zone_id"
-      -var="aws_zone=$aws_zone" -var="cloudflare_api_token=$cloudflare_api_token" -var="email=$email"
-
+    - terraform state pull > terraform.tfstate
     - >
       terraform destroy --auto-approve -var="domain=$domain" -var="cloudflare_zone_id=$cloudflare_zone_id"
       -var="aws_zone=$aws_zone" -var="cloudflare_api_token=$cloudflare_api_token" -var="email=$email"
