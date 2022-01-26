@@ -1,11 +1,6 @@
 stages:
   - deploy
 
-
-include:
-  template: Jobs/Secret-Detection.gitlab-ci.yml
-
-
 variables:
   domain: $domain
   cloudflare_zone_id: $cloudflare_zone_id
