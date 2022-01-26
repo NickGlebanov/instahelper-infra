@@ -31,9 +31,10 @@ destroy_amazon_infrastructure:
   before_script:
     - terraform init
   stage: deploy
-  when: manual
   script:
     - terraform state pull > terraform.tfstate
+    - ls
+    - cat terraform.tfstate
     - >
       terraform destroy --auto-approve -var="domain=$domain" -var="cloudflare_zone_id=$cloudflare_zone_id"
       -var="aws_zone=$aws_zone" -var="cloudflare_api_token=$cloudflare_api_token" -var="email=$email"
