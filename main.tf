@@ -5,7 +5,7 @@ terraform {
       version = "3.7.0"
     }
   }
-  cloud {
+  backend "remote" {
     organization = "skillboxngdiplom"
 
     workspaces {
@@ -13,11 +13,6 @@ terraform {
     }
   }
   
-}
-
-#данные переменные в локальном .tfvars файле
-variable "terraform_token" {
-  type = string
 }
 
 variable "cloudflare_api_token" {

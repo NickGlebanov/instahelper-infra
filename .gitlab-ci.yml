@@ -6,11 +6,12 @@ image:
   entrypoint: [""]
 
 update_amazon_infrastructure:
-  before_script:
   stage: deploy
-  variables:
-    TFE_TOKEN: $terraform_token
   script:
+    - >
+      echo "credentials "app.terraform.io" {
+      token = \"$TFE_TOKEN\"
+      }" > ~/.terraformrc
     - terraform init
     - terraform apply
 
@@ -18,8 +19,10 @@ update_amazon_infrastructure:
 destroy_amazon_infrastructure:
   stage: deploy
   when: manual
-  variables:
-    TFE_TOKEN: $terraform_token
   script:
+    - >
+      echo "credentials "app.terraform.io" {
+      token = \"$TFE_TOKEN\"
+      }" > ~/.terraformrc
     - terraform init
     - terraform destroy
