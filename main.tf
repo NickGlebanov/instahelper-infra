@@ -9,10 +9,10 @@ terraform {
     organization = "skillboxngdiplom"
 
     workspaces {
-      name = "diploma"
+      name = "infra2"
     }
   }
-  
+
 }
 
 variable "cloudflare_api_token" {
@@ -54,6 +54,11 @@ data "aws_subnet_ids" "default" {
   vpc_id = data.aws_vpc.default.id
 }
 
+data "aws_subnet" "dest" {
+  count = length(data.aws_subnet_ids.default.ids)
+  id    = tolist(data.aws_subnet_ids.default.ids)[count.index]
+}
+
 # Указываем, что мы хотим разворачивать окружение в AWS
 provider "aws" {
   region = var.aws_zone
@@ -64,10 +69,38 @@ provider "cloudflare" {
   api_token = var.cloudflare_api_token
 }
 
+resource "aws_instance" "backend_1" {
+  ami             = data.aws_ami.ubuntu.id
+  instance_type   = "t2.micro"
+  security_groups = [aws_security_group.backend.id]
+  key_name        = "id_rsa"
+
+  subnet_id       = data.aws_subnet.dest[1].id
+  tags = {
+    key                 = "Name"
+    value               = "Service instance"
+    propagate_at_launch = true
+  }
+}
+
+resource "aws_instance" "backend_2" {
+  ami             = data.aws_ami.ubuntu.id
+  instance_type   = "t2.micro"
+  security_groups = [aws_security_group.backend.id]
+  key_name        = "id_rsa"
+
+  subnet_id       = data.aws_subnet.dest[0].id
+  tags = {
+    key                 = "Name"
+    value               = "Service instance"
+    propagate_at_launch = true
+  }
+}
+
 resource "aws_security_group" "backend" {
   name = "backend security 2"
   dynamic ingress {
-    for_each = [22, 8080]
+    for_each = [22, 8080, 9100, 9115]
     content {
       from_port   = ingress.value
       to_port     = ingress.value
@@ -80,34 +113,6 @@ resource "aws_security_group" "backend" {
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
-  }
-}
-
-#конфигурация серверов входящих в автоскейлинг группу
-resource "aws_launch_configuration" "example" {
-  image_id        = data.aws_ami.ubuntu.id
-  instance_type   = "t2.micro"
-  security_groups = [aws_security_group.backend.id]
-  key_name        = "id_rsa"
-}
-
-resource "aws_autoscaling_group" "example" {
-  launch_configuration = aws_launch_configuration.example.name
-  min_size             = 2
-  max_size             = 2
-  vpc_zone_identifier  = data.aws_subnet_ids.default.ids
-  target_group_arns    = [aws_lb_target_group.asg.arn]
-
-  tag {
-    key                 = "Name"
-    value               = "Service instance"
-    propagate_at_launch = true
-  }
-  # Требуется при использовании группы автомасштабирования
-  # в конфигурации запуска.
-  # https://www.terraform.io/docs/providers/aws/r/launch_configuration.html
-  lifecycle {
-    create_before_destroy = true
   }
 }
 
@@ -137,6 +142,16 @@ resource "aws_lb_listener" "http" {
       status_code  = 404
     }
   }
+}
+
+resource "aws_eip" "backend_1_ip" {
+  instance = aws_instance.backend_1.id
+  vpc      = true
+}
+
+resource "aws_eip" "backend_2_ip" {
+  instance = aws_instance.backend_2.id
+  vpc      = true
 }
 
 resource "aws_lb_listener_rule" "asg" {
@@ -205,4 +220,12 @@ resource "cloudflare_record" "test" {
 output "alb_dns_name" {
   value       = aws_lb.main.dns_name
   description = "The domain name of the load balancer"
+}
+
+output "ip1" {
+  value = aws_eip.backend_1_ip.public_ip
+}
+
+output "ip2" {
+  value = aws_eip.backend_2_ip.public_ip
 }
